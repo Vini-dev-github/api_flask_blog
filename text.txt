@@ -1,0 +1,4 @@
+https://flask-sqlalchemy.readthedocs.io/en/stable/quickstart/
+
+flask project layout
+https://flask.palletsprojects.com/en/stable/tutorial/layout/
