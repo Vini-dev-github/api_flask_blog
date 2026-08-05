@@ -14,8 +14,14 @@ def _create_user():
 
 def _list_users():
     query = db.select(User)
-    results = db.session.execute(query)
-    return results
+    users = db.session.execute(query).scalars().all()
+    return [
+        {
+            "id": user.id,
+            "username": user.username,
+        }
+        for user in users
+    ]
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -24,4 +30,13 @@ def handle_user():
         _create_user()
         return {"message": "User created successfully"}, HTTPStatus.CREATED
     else:
-        return {"message": []}
+        return {"users": [_list_users()]}, HTTPStatus.OK
+
+
+@app.route("/<int:user_id>")
+def get_user(user_id):
+    user = db.get_or_404(User, user_id)
+    return {
+        "id": user.id,
+        "username": user.username,
+    }
