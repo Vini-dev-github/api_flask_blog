@@ -40,3 +40,18 @@ def get_user(user_id):
         "id": user.id,
         "username": user.username,
     }
+
+
+@app.route("/<int:user_id>", methods=["PATCH"])
+def update_user(user_id):
+    user = db.get_or_404(User, user_id)
+    data = request.get_json()
+
+    if "username" in data:
+        user.username = data["username"]
+        db.session.commit()
+
+    return {
+        "id": user.id,
+        "username": user.username,
+    }
