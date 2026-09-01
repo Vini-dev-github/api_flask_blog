@@ -9,6 +9,7 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 import click
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 
 class Base(DeclarativeBase):
@@ -17,6 +18,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
+jwt = JWTManager()
 
 
 class User(db.Model):
@@ -59,6 +61,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY="dev",
         SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path.resolve().as_posix()}",
+        JWT_SECRET_KEY="super-secret",
     )
 
     if test_config is None:
@@ -71,15 +74,17 @@ def create_app(test_config=None):
     # initialize the database
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
 
     @app.route("/hello")
     def hello():
         return "Hell-o, world!"
 
     # register blueprints
-    from src.controllers import user, post
+    from src.controllers import user, post, auth
 
     app.register_blueprint(user.app)
     app.register_blueprint(post.app)
+    app.register_blueprint(auth.app)
 
     return app
